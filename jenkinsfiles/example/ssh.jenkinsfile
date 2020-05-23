@@ -1,0 +1,52 @@
+def remote = [:]
+
+pipeline{
+    agent any
+	stages{
+    	stage("init"){
+    	    steps{
+    	    	script{
+					remote.name = '10.0.0.1'
+					remote.host = '10.0.0.1'
+					remote.allowAnyHosts = true
+    	    	}
+    	    }
+    	}
+    	stage("command"){
+    	    steps{
+    	    	script{
+					withCredentials([sshUserPrivateKey(credentialsId: credentialsId, keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
+						remote.user = userName
+						remote.identityFile = identity
+						ansiColor('xterm') {
+						tf = "/root/yef/*.bak"
+						
+						writeFile file: 'abc.sh', text: """
+							list=`ls -tr ${tf}`
+							[[ \${list} == '' ]] && echo \"\033[40;31m >>>>>>>>>>> no such file <<<<<<<<<<< \033[0m\" && exit 13
+							for i in \${list}
+							do 
+								echo \$i
+							done					
+						"""
+						sshScript remote: remote, script: "abc.sh"
+						//command 模式会把所有执行命令重复打印在console中，如果多行命令执行，建议使用script模式
+						sshCommand remote: remote, command: """
+							list=`ls -tr ${tf}`
+							[[ \${list} == '' ]] && echo \"\033[40;31m >>>>>>>>>>> no such file <<<<<<<<<<< \033[0m\"  && exit 13
+							for i in \${list}
+							do 
+								echo \$i
+							done
+						"""
+						
+						sshPut remote: remote, from: "/root/yef/a", into: "/root/a"
+						sshPut remote: remote, from: "/root/yef/a", into: "/root/b"
+						sshGet remote: remote, from: "/root/yef/a", into: WORKSPACE, override: true
+						}
+					}
+    	    	}
+    	    }
+    	}
+    }
+}

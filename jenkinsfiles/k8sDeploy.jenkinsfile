@@ -77,7 +77,7 @@ pipeline{
             when { 
         		beforeAgent true
         		anyOf { 
-        			environment name: 'Status', value: 'SetImage'; 
+        			environment name: 'Status', value: 'update'; 
         			environment name: 'Status', value: 'FirstRelease'
         		} 
         	}
@@ -96,7 +96,7 @@ pipeline{
            	when { 
         		beforeAgent true
         		anyOf { 
-        			environment name: 'Status', value: 'SetImage'; 
+        			environment name: 'Status', value: 'update'; 
         			environment name: 'Status', value: 'FirstRelease'
         		} 
         	}
@@ -112,7 +112,7 @@ pipeline{
 	    	when { 
         		beforeAgent true
         		anyOf { 
-        			environment name: 'Status', value: 'SetImage'; 
+        			environment name: 'Status', value: 'update'; 
         			environment name: 'Status', value: 'FirstRelease'
         		} 
         	}
@@ -136,7 +136,7 @@ pipeline{
 		    steps{
 		    	script{
 					switch(status){
-					    case "SetImage":
+					    case "update":
 					    	dir("${target_dir}/target") {
 								sh "kubectl set image deployment ${Service} ${Service}=${REPOSITORY} --namespace=${NS} --record=true"
 						    	healthCheck.checkPodStatus(Service,NS)

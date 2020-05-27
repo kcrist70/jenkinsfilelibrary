@@ -10,6 +10,7 @@
 | mavenInstall.jenkinsfile  | 依赖包打包 |  
 | staticWebsite.jenkinsfile  | 静态页面更新至nginx下，并reload |  
 | npmWebsite.jenkinsfile  | npm 前端项目构建，并打包放置到nginx下 |  
+| multiJobProject.jenkinsfile| 模拟multijob project模板做的jenkinsfile|
 
 ## resources：  这属于共享库代码，需要在系统中配置共享库地址及名称
 ### resources中根据目录区分项目环境，例如生产prod，预生产preprod等

@@ -20,90 +20,90 @@ pipeline{
     	stage("init"){
     		steps{
     		    script{
-					def serviceEnvConfig = libraryResource "com/${projectType}/${releaseEnv}/conf/multiJobProject.groovy"
-					writeFile encoding: 'UTF-8', file: 'service.groovy', text: serviceEnvConfig
-					load 'service.groovy'
-					def pythonScript = libraryResource "com/extension/python/parserxlsx.py"
-					writeFile encoding: 'UTF-8', file: 'parserxlsx.py', text: pythonScript
+			def serviceEnvConfig = libraryResource "com/${projectType}/${releaseEnv}/conf/multiJobProject.groovy"
+			writeFile encoding: 'UTF-8', file: 'service.groovy', text: serviceEnvConfig
+			load 'service.groovy'
+			def pythonScript = libraryResource "com/extension/python/parserxlsx.py"
+			writeFile encoding: 'UTF-8', file: 'parserxlsx.py', text: pythonScript
     		    }
     		}	
     	}
     	stage("svn"){
     		steps{
     		    script{
-					checkout([$class: 'SubversionSCM', additionalCredentials: [], excludedCommitMessages: '', 
-							excludedRegions: '', excludedRevprop: '', excludedUsers: '', filterChangelog: false, 
-							ignoreDirPropChanges: false, includedRegions: '', 
-							locations: [[cancelProcessOnExternalsFail: true, 
-							credentialsId: svnCredentialsId , 
-							depthOption: 'files', ignoreExternalsOption: true, local: "online", 
-							remote: svnPath ]], 
-							quietOperation: true, workspaceUpdater: [$class: 'UpdateUpdater']])
+			checkout([$class: 'SubversionSCM', additionalCredentials: [], excludedCommitMessages: '', 
+					excludedRegions: '', excludedRevprop: '', excludedUsers: '', filterChangelog: false, 
+					ignoreDirPropChanges: false, includedRegions: '', 
+					locations: [[cancelProcessOnExternalsFail: true, 
+					credentialsId: svnCredentialsId , 
+					depthOption: 'files', ignoreExternalsOption: true, local: "online", 
+					remote: svnPath ]], 
+					quietOperation: true, workspaceUpdater: [$class: 'UpdateUpdater']])
     		    }
     		}	
     	}
     	stage("exec python"){
     		steps{
     		    script{
-					sh "python3 parserxlsx.py ${filePath}"
-					props = readJSON file: 'online.json'
+			sh "python3 parserxlsx.py ${filePath}"
+			props = readJSON file: 'online.json'
     		    }
     		}	
     	}
     	stage("first build projects"){
     		steps{
     		    script{
-					props.first.each{ name ->		
-						def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
-						if (result.currentResult == "SUCCESS"){
-						      tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
-						      tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
-						}else{
-							  tools.PrintMes("project ${result.projectName} is ${result.currentResult}","red")
-						      tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
-						      error ""
-						}
-					}
+			props.first.each{ name ->		
+				def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
+				if (result.currentResult == "SUCCESS"){
+				      tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
+				      tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
+				}else{
+					  tools.PrintMes("project ${result.projectName} is ${result.currentResult}","red")
+				      tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
+				      error ""
+				}
+			}
     		    }
     		}	
     	}
     	stage("parallel build projects"){
     		steps{
     		    script{
-					props.parallels.each{ def name ->
-						tasks[ "task ${name}" ] = {
-					         stage("task ${name}"){
-								def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
-					   			if (result.currentResult == "SUCCESS"){
-					            	tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
-					                tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
-					          	}else{
-					            	tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
-					            	tools.PrintMes( "project ${result.projectName} is ${result.currentResult}","red")
-					          	}
-					         }
-					     }
+			props.parallels.each{ def name ->
+				tasks[ "task ${name}" ] = {
+				 stage("task ${name}"){
+						def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
+						if (result.currentResult == "SUCCESS"){
+					tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
+					tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
+					}else{
+					tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
+					tools.PrintMes( "project ${result.projectName} is ${result.currentResult}","red")
 					}
-					parallel(tasks)
+				 }
+			     }
+			}
+			parallel(tasks)
     		    }
     		}	
     	}
     	stage("last build projects"){
-    		steps{
-    		    script{
-					props.last.each{ name ->
-					    def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
-					    if (result.currentResult == "SUCCESS"){
-					          tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
-					          tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
-					    }else{
-					    	  tools.PrintMes("project ${result.projectName} is ${result.currentResult}","red")
-					          tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
-					          error ""
-					    }
-					}
-    		    }
-    		}
+		steps{
+		    script{
+			props.last.each{ name ->
+			    def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
+			    if (result.currentResult == "SUCCESS"){
+				  tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
+				  tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
+			    }else{
+				  tools.PrintMes("project ${result.projectName} is ${result.currentResult}","red")
+				  tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
+				  error ""
+			    }
+			}
+		    }
+		}
     	}
     }
 }

@@ -53,8 +53,8 @@ pipeline{
     	stage("first build projects"){
     		steps{
     		    script{
-			props.first.each{ def name ->		
-				def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
+			props.first.each{ 		
+				def result = build job: it, propagate: false, parameters: [string(name: 'Status', value: 'update')]
 				if (result.currentResult == "SUCCESS"){
 				      tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
 				      tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
@@ -70,10 +70,10 @@ pipeline{
     	stage("parallel build projects"){
     		steps{
     		    script{
-			props.parallels.each{ def name ->
-				tasks[ "task ${name}" ] = {
-				 stage("task ${name}"){
-						def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
+			props.parallels.each{ 
+				tasks[ it ] = {
+				 stage(it){
+						def result = build job: it, propagate: false, parameters: [string(name: 'Status', value: 'update')]
 						if (result.currentResult == "SUCCESS"){
 					tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
 					tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
@@ -91,8 +91,8 @@ pipeline{
     	stage("last build projects"){
 		steps{
 		    script{
-			props.last.each{ def name ->
-			    def result = build job: name, propagate: false, parameters: [string(name: 'Status', value: 'update')]
+			props.last.each{ 
+			    def result = build job: it, propagate: false, parameters: [string(name: 'Status', value: 'update')]
 			    if (result.currentResult == "SUCCESS"){
 				  tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
 				  tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")

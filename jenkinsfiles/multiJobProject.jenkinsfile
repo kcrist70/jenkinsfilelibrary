@@ -3,7 +3,6 @@
 
 def tasks = [:]
 projectType = "otherProject"
-def tools = new org.devops.tools()
 //pipeline
 pipeline{
 	
@@ -56,11 +55,11 @@ pipeline{
 			props.first.each{ 		
 				def result = build job: it, propagate: false, parameters: [string(name: 'Status', value: 'update')]
 				if (result.currentResult == "SUCCESS"){
-				      tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
-				      tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
+				      log.info("${result.projectName} url is ${result.absoluteUrl}")
+				      log.info("${result.projectName} is ${result.currentResult}")
 				}else{
-					  tools.PrintMes("project ${result.projectName} is ${result.currentResult}","red")
-				      tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
+					  log.error("project ${result.projectName} is ${result.currentResult}")
+				      log.info("${result.projectName} url is ${result.absoluteUrl}")
 				      error ""
 				}
 			}
@@ -75,11 +74,11 @@ pipeline{
 				 stage(it){
 						def result = build job: it, propagate: false, parameters: [string(name: 'Status', value: 'update')]
 						if (result.currentResult == "SUCCESS"){
-					tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
-					tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
+					log.info("${result.projectName} url is ${result.absoluteUrl}")
+					log.info("${result.projectName} is ${result.currentResult}")
 					}else{
-					tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
-					tools.PrintMes( "project ${result.projectName} is ${result.currentResult}","red")
+					log.error("${result.projectName} url is ${result.absoluteUrl}")
+					log.error( "project ${result.projectName} is ${result.currentResult}")
 					}
 				 }
 			     }
@@ -94,11 +93,11 @@ pipeline{
 			props.last.each{ 
 			    def result = build job: it, propagate: false, parameters: [string(name: 'Status', value: 'update')]
 			    if (result.currentResult == "SUCCESS"){
-				  tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","blue")
-				  tools.PrintMes("${result.projectName} is ${result.currentResult}","blue")
+				  log.info("${result.projectName} url is ${result.absoluteUrl}")
+				  log.info("${result.projectName} is ${result.currentResult}")
 			    }else{
-				  tools.PrintMes("project ${result.projectName} is ${result.currentResult}","red")
-				  tools.PrintMes("${result.projectName} url is ${result.absoluteUrl}","red")
+				  log.error("project ${result.projectName} is ${result.currentResult}")
+				  log.error("${result.projectName} url is ${result.absoluteUrl}")
 				  error ""
 			    }
 			}

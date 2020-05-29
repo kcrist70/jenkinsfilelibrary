@@ -5,7 +5,7 @@
 def healthCheck = new org.devops.healthCheck()
 def harborSearch = new org.devops.harborSearch()
 def k8sSearch = new org.devops.k8sSearch()
-def tools = new org.devops.tools()
+
 
 // environment -> parameters
 String Service = "${env.Service}"
@@ -46,7 +46,7 @@ pipeline{
 							// dockerfile resources
 							env.dockerFile = libraryResource "com/${projectType}/${releaseEnv}/dockerfile/common.dockerfile"
 							// println
-					    	tools.PrintMes("${Service} use deployment-${Service}.yaml,service-${Service}.yaml,common.dockerfile","green")
+					    	log.info("${Service} use deployment-${Service}.yaml,service-${Service}.yaml,common.dockerfile")
 					    	break
 					    case ["urm-push","data-task","data-elsearch","data-gather","bd-recommend",
 					    	  "bd-realtime-recommend","nlpchart-service","nlpchart-service-model",
@@ -58,7 +58,7 @@ pipeline{
 							// dockerfile resources
 							env.dockerFile = libraryResource "com/${projectType}/${releaseEnv}/dockerfile/common.dockerfile"
 							// println
-					    	tools.PrintMes("${Service} use deployment-${Service}.yaml,service.yaml,common.dockerfile","green")
+					    	log.info("${Service} use deployment-${Service}.yaml,service.yaml,common.dockerfile")
 					    	break
 					    default:
 					    	// yaml resources 
@@ -67,7 +67,7 @@ pipeline{
 							// dockerfile resources
 							env.dockerFile = libraryResource "com/${projectType}/${releaseEnv}/dockerfile/common.dockerfile"
 							// println
-							tools.PrintMes("${Service} use deployment.yaml,service.yaml,common.dockerfile","green")
+							log.info("${Service} use deployment.yaml,service.yaml,common.dockerfile")
 							break
 					}	
 				}
@@ -150,18 +150,18 @@ pipeline{
 					    		sh "echo \"${serviceYamlFile}\" > service.yaml"
 						    	deploymentStatus = k8sSearch.deploymentSearch(Service,NS)
 						    	if(deploymentStatus){
-						    	    tools.PrintMes("delete deployment/${Service} first","green1")
+						    	    log.info("delete deployment/${Service} first")
 						    	    sh "kubectl -n ${NS} delete deployment/${Service}"
 					    	 	}
-					    	    tools.PrintMes("create deployment ${Service}","green1")
+					    	    log.info("create deployment ${Service}")
 					    	    sh "kubectl apply -f deployment.yaml --record"
 					    	    healthCheck.checkPodStatus(Service,NS)
 						    	svcStatus = k8sSearch.serviceSearch(Service,NS)
 					    	    if(svcStatus){
-					    	        tools.PrintMes("delete svc/${Service} first","red")
+					    	        log.warning("delete svc/${Service} first")
 					    	        sh "kubectl -n ${NS} delete svc/${Service}"  
 				    	    	}
-				    	        tools.PrintMes("create svc/${Service}","green1")
+				    	        log.info("create svc/${Service}")
 				    	        sh "kubectl apply -f service.yaml --record"
 				    	        healthCheck.checkSvcStatus(Service,NS,Port)
 					    	}

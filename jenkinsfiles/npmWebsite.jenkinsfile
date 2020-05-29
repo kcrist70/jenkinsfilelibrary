@@ -1,9 +1,6 @@
 #!groovy
 @Library("jenkinslibrary") _    //jenkins: Manage Jenkins -> configure system -> Global Pipeline Libraries -> Library Name
 
-// libraries -> func
-def tools = new org.devops.tools()
-
 // environment -> parameters
 String Service = "${env.Service}"
 String releaseEnv = "${env.releaseEnv}"
@@ -60,9 +57,9 @@ pipeline{
 							sh "npm run buildSafe"
 			    		}
 						dir(target_dir){
-							tools.PrintMes("检测是否存在dist.tar.gz","green")
+							log.info("检测是否存在dist.tar.gz")
 							sh "[[ -f ../dist.tar.gz ]] && rm -f ../dist.tar.gz"
-						    tools.PrintMes("打包中。。。","green")
+						    log.info("打包中。。。")
 						    sh "tar -zcf ../dist.tar.gz ./*"
 						}
 					}

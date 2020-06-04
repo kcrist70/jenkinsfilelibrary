@@ -24,7 +24,7 @@
 ## 项目变量：
 + choice parameter：  
     - Status：  
-	    * SetImage： 滚动升级
+	    * update： 滚动升级
         * RollBack： 取消最近一次滚动升级
         * SpecificVersion： 回滚到特定历史版本
         * FirstRelease：重新发布版本，替换yaml文件

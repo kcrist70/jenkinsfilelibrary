@@ -1,0 +1,2 @@
+## use the k8s apiserver to operation project
++ config apiserver url
